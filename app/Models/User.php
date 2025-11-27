@@ -30,7 +30,6 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
     /**
@@ -44,5 +43,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function households(){
+        return $this->belongsToMany(household::class)
+                    ->withPivot('role')
+                    ->withTimestamps(); 
     }
 }
