@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('meal_plan_id')->constrained()->onDelete('cascade');
-
+            $table->foreignId('recipe_id')->nullable()->constrained()->onDelete('set null');
             $table->date('date');
             $table->enum('slot', ['breakfast', 'lunch', 'dinner']);
-            $table->foreignId('recipe_id')->nullable()->constrained()->onDelete('set null');
+
 
 
             $table->timestamps();

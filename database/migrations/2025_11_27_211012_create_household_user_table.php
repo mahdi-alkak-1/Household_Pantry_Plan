@@ -23,6 +23,7 @@ return new class extends Migration
               ->onDelete('cascade'); 
 
             $table->enum('role',['admin', 'member'])->default('member');
+            
             $table->timestamps();
         });
     }
