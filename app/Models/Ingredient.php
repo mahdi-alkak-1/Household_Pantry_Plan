@@ -11,7 +11,15 @@ class Ingredient extends Model
 
     protected $fillable = [
         'name',
+        'category',
+        'household_id'
     ];
+
+    
+    public function household()
+    {
+        return $this->belongsTo(Household::class);
+    }
 
     public function recipes()
     {
