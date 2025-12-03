@@ -13,9 +13,6 @@ class ShoppingListItemController extends Controller
 {
     use ResponseTrait;
 
-    /**
-     * GET: List all items for a shopping list
-     */
     public function index($shopping_list_id)
     {
         $user_id = Auth::id();
@@ -29,17 +26,14 @@ class ShoppingListItemController extends Controller
         return self::responseJSON($items, "Items retrieved successfully", 200);
     }
 
-
-    /**
-     * POST: Create a new shopping list item
-     */
     public function store(Request $request)
     {
         $request->validate([
             'shopping_list_id' => 'required|integer',
             'name'             => 'required|string|max:255',
             'quantity'         => 'nullable|numeric',
-            'unit'             => 'nullable|string|max:50'
+            'unit'             => 'nullable|string|max:50',
+            'source'           => 'nullable|string|in:mealplan,pantry,manual',
         ]);
 
         $user_id = Auth::id();
@@ -50,10 +44,11 @@ class ShoppingListItemController extends Controller
 
         $item = new ShoppingListItem;
         $item->shopping_list_id = $request->shopping_list_id;
-        $item->name = $request->name;
-        $item->quantity = $request->quantity;
-        $item->unit = $request->unit;
-        $item->bought = false;
+        $item->name             = $request->name;
+        $item->quantity         = $request->quantity;
+        $item->unit             = $request->unit;
+        $item->bought           = false;
+        $item->source           = $request->input('source', 'manual'); 
 
         if ($item->save()) {
             return self::responseJSON($item, "Item added successfully", 201);
@@ -62,10 +57,6 @@ class ShoppingListItemController extends Controller
         return self::responseJSON(null, "Failed to add item", 500);
     }
 
-
-    /**
-     * GET: Show single item
-     */
     public function show($id)
     {
         $user_id = Auth::id();
@@ -77,10 +68,6 @@ class ShoppingListItemController extends Controller
         return self::responseJSON($item, "Item retrieved successfully", 200);
     }
 
-
-    /**
-     * POST: Update an item
-     */
     public function update(Request $request, $id)
     {
         $item = ShoppingListItem::find($id);
@@ -93,10 +80,10 @@ class ShoppingListItemController extends Controller
             'bought'   => 'sometimes|boolean'
         ]);
 
-        if ($request->has('name'))     $item->name = $request->name;
+        if ($request->has('name'))     $item->name     = $request->name;
         if ($request->has('quantity')) $item->quantity = $request->quantity;
-        if ($request->has('unit'))     $item->unit = $request->unit;
-        if ($request->has('bought'))   $item->bought = $request->bought;
+        if ($request->has('unit'))     $item->unit     = $request->unit;
+        if ($request->has('bought'))   $item->bought   = $request->bought;
 
         if ($item->save()) {
             return self::responseJSON($item, "Item updated successfully", 200);
@@ -105,10 +92,6 @@ class ShoppingListItemController extends Controller
         return self::responseJSON(null, "Failed to update item", 500);
     }
 
-
-    /**
-     * POST: Toggle bought/not bought
-     */
     public function toggleBought($id)
     {
         $item = ShoppingListItem::find($id);
@@ -123,10 +106,6 @@ class ShoppingListItemController extends Controller
         return self::responseJSON(null, "Failed to update status", 500);
     }
 
-
-    /**
-     * DELETE: Remove item
-     */
     public function destroy($id)
     {
         $item = ShoppingListItem::find($id);

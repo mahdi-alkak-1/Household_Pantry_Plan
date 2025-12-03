@@ -15,6 +15,7 @@ class ShoppingListItem extends Model
         'quantity',
         'unit',
         'bought',
+        'source',
     ];
 
     public function shoppingList()

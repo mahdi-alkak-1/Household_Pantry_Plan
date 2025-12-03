@@ -8,53 +8,45 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Household;
 use App\Models\User;
 use Illuminate\Support\Str;
-use App\Traits\ResponseTrait;
 
 class HouseholdController extends Controller
 {
-    use ResponseTrait;
-
-    /**
-     * Generate invite code like: 1NA4-M3V6K-43KD
-     */
     private function generateInviteCode()
     {
         return strtoupper(Str::random(4) . '-' . Str::random(4) . '-' . Str::random(4));
     }
 
 
-    /**
-     * GET: list households of authenticated user
-     */
     public function index()
     {
+     
         $user_id = Auth::id();
-
+    
         if (!$user_id) {
             return self::responseJSON(null, "unauthorized", 401);
         }
-
+       
         $user = User::find($user_id);
 
         if (!$user) {
             return self::responseJSON(null, "User not found", 404);
         }
 
-        $households = $user->households()->withPivot('role')->get();
+        $households = $user->households()->withCount('users')->get();
 
         return self::responseJSON($households, "Households retrieved successfully", 200);
     }
 
 
-    /**
-     * POST: create household
-     */
     public function store(Request $request)
     {
+        
+        
+    //    return self::responseJSON(null, "unauthorized", 401);
         $request->validate([
             'name' => 'required|string|max:255'
         ]);
-
+        
         $user_id = Auth::id();
 
         if (!$user_id) {
@@ -62,7 +54,7 @@ class HouseholdController extends Controller
         }
 
         $household = new Household;
-        $household->name        = $request->name;
+        $household->name = $request->name;
         $household->invite_code = $this->generateInviteCode();
 
         if ($household->save()) {
@@ -79,9 +71,6 @@ class HouseholdController extends Controller
     }
 
 
-    /**
-     * GET: show single household
-     */
     public function show($id)
     {
         $household = Household::with('users')->find($id);
@@ -93,10 +82,6 @@ class HouseholdController extends Controller
         return self::responseJSON($household, "Household retrieved successfully", 200);
     }
 
-
-    /**
-     * POST: join household using invite code
-     */
     public function join(Request $request)
     {
         $request->validate([

@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Auth;
 class PantryController extends Controller
 {
 
-    /**
-     * GET: List pantry items of a household
-     */
     public function index($household_id)
     {
         $user_id = Auth::id();
@@ -23,19 +20,30 @@ class PantryController extends Controller
         $household = Household::find($household_id);
         if (!$household) return self::responseJSON(null, "Household not found", 404);
 
-        $items = PantryItem::where('household_id', $household_id)
-                           ->with('ingredient')
-                           ->get();
+        $items = PantryItem::join('ingredients', 'ingredients.id', '=', 'pantry_items.ingredient_id')
+            ->where('pantry_items.household_id', $household_id)
+            ->orderBy('ingredients.name')
+            ->get([
+                'pantry_items.id',
+                'pantry_items.household_id',
+                'pantry_items.ingredient_id',
+                'ingredients.name',       // <-- this is what ShoppingList.tsx expects as p.name
+                'pantry_items.quantity',
+                'pantry_items.unit',
+                'pantry_items.expiry_date',
+                'pantry_items.location',
+                'pantry_items.created_at',
+                'pantry_items.updated_at',
+            ]);
 
         return self::responseJSON($items, "Pantry items retrieved successfully", 200);
     }
 
 
-    /**
-     * POST: Add item to pantry
-     */
+
     public function store(Request $request)
     {
+      
         $request->validate([
             'household_id'  => 'required|integer',
             'ingredient_id' => 'required|integer',
@@ -72,9 +80,6 @@ class PantryController extends Controller
     }
 
 
-    /**
-     * PUT: Update pantry item
-     */
     public function update(Request $request, $id)
     {
         $user_id = Auth::id();
@@ -96,9 +101,6 @@ class PantryController extends Controller
     }
 
 
-    /**
-     * DELETE: Remove pantry item
-     */
     public function destroy($id)
     {
         $user_id = Auth::id();

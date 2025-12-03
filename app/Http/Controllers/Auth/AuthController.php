@@ -28,7 +28,7 @@ class AuthController extends Controller{
             return $this->responseJSON(null, "Unauthorized", 401);
         }
 
-        $user = Auth::user();
+        $user = auth('api')->user();
         $user->token = $token;
         return $this->responseJSON($user);
     }

@@ -10,10 +10,6 @@ use Illuminate\Support\Facades\Auth;
 
 class IngredientController extends Controller
 {
-
-    /**
-     * GET: list ingredients of a household
-     */
     public function index($household_id)
     {
         $user_id = Auth::id();
@@ -34,9 +30,6 @@ class IngredientController extends Controller
     }
 
 
-    /**
-     * POST: create ingredient
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -70,9 +63,7 @@ class IngredientController extends Controller
     }
 
 
-    /**
-     * PUT: update ingredient
-     */
+
     public function update(Request $request, $id)
     {
         $user_id = Auth::id();
@@ -97,9 +88,7 @@ class IngredientController extends Controller
     }
 
 
-    /**
-     * DELETE: delete ingredient
-     */
+
     public function destroy($id)
     {
         $user_id = Auth::id();

@@ -7,17 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\MealPlan;
 use App\Models\MealPlanItem;
 use App\Models\Recipe;
-use App\Traits\ResponseTrait;
 use Illuminate\Support\Facades\Auth;
 
 class MealPlanItemController extends Controller
 {
-    use ResponseTrait;
-
-
-    /**
-     * GET: List all items for a meal plan
-     */
     public function index($meal_plan_id)
     {
         $user_id = Auth::id();
@@ -31,10 +24,6 @@ class MealPlanItemController extends Controller
         return self::responseJSON($items, "Meal plan items retrieved successfully", 200);
     }
 
-
-    /**
-     * POST: Create a new meal plan item
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -47,11 +36,9 @@ class MealPlanItemController extends Controller
         $user_id = Auth::id();
         if (!$user_id) return self::responseJSON(null, "unauthorized", 401);
 
-        // Check meal plan exists
         $mealPlan = MealPlan::find($request->meal_plan_id);
         if (!$mealPlan) return self::responseJSON(null, "Meal plan not found", 404);
 
-        // If recipe provided, validate it
         if ($request->recipe_id) {
             $recipe = Recipe::find($request->recipe_id);
             if (!$recipe) {
@@ -72,10 +59,6 @@ class MealPlanItemController extends Controller
         return self::responseJSON(null, "Failed to create meal plan item", 500);
     }
 
-
-    /**
-     * GET: Show specific meal plan item
-     */
     public function show($id)
     {
         $user_id = Auth::id();
@@ -88,10 +71,6 @@ class MealPlanItemController extends Controller
         return self::responseJSON($item, "Meal plan item retrieved successfully", 200);
     }
 
-
-    /**
-     * POST: Update meal plan item (date, slot, recipe)
-     */
     public function update(Request $request, $id)
     {
         $item = MealPlanItem::find($id);
@@ -106,7 +85,6 @@ class MealPlanItemController extends Controller
         if ($request->has('date')) $item->date = $request->date;
         if ($request->has('slot')) $item->slot = $request->slot;
 
-        // Validate recipe if provided
         if ($request->has('recipe_id')) {
             if ($request->recipe_id === null) {
                 $item->recipe_id = null;
@@ -126,10 +104,6 @@ class MealPlanItemController extends Controller
         return self::responseJSON(null, "Failed to update meal plan item", 500);
     }
 
-
-    /**
-     * DELETE: Remove item
-     */
     public function destroy($id)
     {
         $item = MealPlanItem::find($id);
