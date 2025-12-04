@@ -11,6 +11,7 @@ class ShoppingList extends Model
 
     protected $fillable = [
         'household_id',
+        'name',
     ];
 
     public function household()

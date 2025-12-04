@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class RecipeIngredientController extends Controller
 {
-    /**
-     * GET: List all ingredients for a recipe (with pivot fields)
-     */
+
     public function index($recipe_id)
     {
         $user_id = Auth::id();
@@ -25,22 +23,20 @@ class RecipeIngredientController extends Controller
     }
 
 
-    /**
-     * POST: Add ingredient to recipe
-     */
-    public function store(Request $request)
+
+    public function store(Request $request,$recipe_id)
     {
+      
         $request->validate([
-            'recipe_id'     => 'required|integer',
             'ingredient_id' => 'required|integer',
             'quantity'      => 'nullable|numeric',
             'unit'          => 'nullable|string|max:50',
         ]);
-
+        //  return self::responseJSON("Ingredients retrieved successfully", 200);
         $user_id = Auth::id();
         if (!$user_id) return self::responseJSON(null, "unauthorized", 401);
 
-        $recipe = Recipe::find($request->recipe_id);
+        $recipe = Recipe::find($recipe_id);
         if (!$recipe) return self::responseJSON(null, "Recipe not found", 404);
 
         $ingredient = Ingredient::find($request->ingredient_id);
@@ -61,9 +57,6 @@ class RecipeIngredientController extends Controller
     }
 
 
-    /**
-     * POST: Update quantity/unit for an ingredient in a recipe
-     */
     public function update(Request $request, $recipe_id, $ingredient_id)
     {
         $request->validate([
@@ -88,9 +81,7 @@ class RecipeIngredientController extends Controller
     }
 
 
-    /**
-     * DELETE / POST: Remove ingredient from recipe
-     */
+ 
     public function destroy($recipe_id, $ingredient_id)
     {
         $recipe = Recipe::find($recipe_id);

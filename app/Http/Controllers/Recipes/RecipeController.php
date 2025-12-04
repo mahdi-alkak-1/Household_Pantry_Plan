@@ -12,9 +12,6 @@ class RecipeController extends Controller
 {
 
 
-    /**
-     * GET: List recipes for a household
-     */
     public function index($household_id)
     {
         $user_id = Auth::id();
@@ -23,15 +20,14 @@ class RecipeController extends Controller
         $household = Household::find($household_id);
         if (!$household) return self::responseJSON(null, "Household not found", 404);
 
-        $recipes = Recipe::where('household_id', $household_id)->get();
+        $recipes = Recipe::with('ingredients')
+                            ->where('household_id', $household_id)
+                            ->get();
 
         return self::responseJSON($recipes, "Recipes retrieved successfully", 200);
     }
 
 
-    /**
-     * POST: Create a new recipe
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -60,10 +56,6 @@ class RecipeController extends Controller
         return self::responseJSON(null, "Failed to create recipe", 500);
     }
 
-
-    /**
-     * GET: Show a single recipe WITH its ingredients + pivot (q, unit)
-     */
     public function show($id)
     {
         $user_id = Auth::id();
@@ -79,9 +71,6 @@ class RecipeController extends Controller
     }
 
 
-    /**
-     * POST: Update a recipe
-     */
     public function update(Request $request, $id)
     {
         $recipe = Recipe::find($id);
@@ -105,9 +94,7 @@ class RecipeController extends Controller
     }
 
 
-    /**
-     * DELETE: Remove a recipe
-     */
+
     public function destroy($id)
     {
         $recipe = Recipe::find($id);

@@ -5,18 +5,15 @@ namespace App\Http\Controllers\MealPlan;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MealPlan;
+use App\Models\MealPlanItem;
 use App\Models\Household;
-use App\Traits\ResponseTrait;
+use App\Models\Recipe;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class MealPlanController extends Controller
 {
-    use ResponseTrait;
 
-
-    /**
-     * GET: List all meal plans for a household
-     */
     public function index($household_id)
     {
         $user_id = Auth::id();
@@ -30,10 +27,6 @@ class MealPlanController extends Controller
         return self::responseJSON($mealPlans, "Meal plans retrieved successfully", 200);
     }
 
-
-    /**
-     * POST: Create a new meal plan (1 per week)
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -44,14 +37,13 @@ class MealPlanController extends Controller
         $user_id = Auth::id();
         if (!$user_id) return self::responseJSON(null, "unauthorized", 401);
 
-        // Check household exists
         $household = Household::find($request->household_id);
         if (!$household) return self::responseJSON(null, "Household not found", 404);
 
-        // OPTIONAL: prevent duplicate week plans for same household
+        // prevent duplicate week plans for same household
         $exists = MealPlan::where('household_id', $request->household_id)
-                           ->where('week_start_date', $request->week_start_date)
-                           ->exists();
+                          ->where('week_start_date', $request->week_start_date)
+                          ->exists();
 
         if ($exists) {
             return self::responseJSON(null, "Meal plan for this week already exists", 409);
@@ -68,28 +60,40 @@ class MealPlanController extends Controller
         return self::responseJSON(null, "Failed to create meal plan", 500);
     }
 
-
-    /**
-     * GET: Show a meal plan WITH items
-     */
     public function show($id)
     {
         $user_id = Auth::id();
         if (!$user_id) return self::responseJSON(null, "unauthorized", 401);
 
-        $mealPlan = MealPlan::with('items')->find($id);
-
+        $mealPlan = MealPlan::find($id);
         if (!$mealPlan) {
             return self::responseJSON(null, "Meal plan not found", 404);
         }
 
+        // ------------------------------------------------------
+        // AUTO-CREATE 7 × 3 SLOTS FOR THIS WEEK IF MISSING
+        // ------------------------------------------------------
+        $start = Carbon::parse($mealPlan->week_start_date)->startOfDay();
+        $slots = ['breakfast', 'lunch', 'dinner'];
+
+        for ($i = 0; $i < 7; $i++) {
+            $date = $start->copy()->addDays($i)->toDateString();
+
+            foreach ($slots as $slot) {
+                MealPlanItem::firstOrCreate([
+                    'meal_plan_id' => $mealPlan->id,
+                    'date'         => $date,
+                    'slot'         => $slot,
+                ]);
+            }
+        }
+
+        // load items + recipes
+        $mealPlan->load('items.recipe');
+
         return self::responseJSON($mealPlan, "Meal plan retrieved successfully", 200);
     }
 
-
-    /**
-     * POST: Update meal plan (usually only the week_start_date)
-     */
     public function update(Request $request, $id)
     {
         $mealPlan = MealPlan::find($id);
@@ -110,10 +114,6 @@ class MealPlanController extends Controller
         return self::responseJSON(null, "Failed to update meal plan", 500);
     }
 
-
-    /**
-     * DELETE: Delete a meal plan
-     */
     public function destroy($id)
     {
         $mealPlan = MealPlan::find($id);

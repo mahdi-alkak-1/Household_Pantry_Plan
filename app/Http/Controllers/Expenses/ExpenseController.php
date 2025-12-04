@@ -75,9 +75,7 @@ class ExpenseController extends Controller
     }
 
 
-    /**
-     * POST: Update expense
-     */
+    //Update expense
     public function update(Request $request, $id)
     {
         $expense = Expense::find($id);
@@ -107,9 +105,6 @@ class ExpenseController extends Controller
     }
 
 
-    /**
-     * DELETE: Remove expense
-     */
     public function destroy($id)
     {
         $expense = Expense::find($id);

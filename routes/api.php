@@ -59,8 +59,9 @@ Route::middleware(['auth:api'])->group(function () {
 
     // RECIPE INGREDIENTS (pivot)
     Route::prefix('recipe-ingredients')->group(function () {
-        Route::post('/attach/{recipeId}',      [RecipeIngredientController::class, 'attach']);
-        Route::post('/detach/{recipeId}/{ingredientId}', [RecipeIngredientController::class, 'detach']);
+        Route::post('/attach/{recipeId}',      [RecipeIngredientController::class, 'store']);
+        Route::post('/update/{recipeId}/{ingredientId}', [RecipeIngredientController::class, 'update']);
+        Route::post('/detach/{recipeId}/{ingredientId}', [RecipeIngredientController::class, 'destroy']);
     });
 
 
@@ -78,10 +79,18 @@ Route::middleware(['auth:api'])->group(function () {
         Route::get('/{household_id}',          [MealPlanController::class, 'index']);
         Route::post('/create',                 [MealPlanController::class, 'store']);
         Route::get('/show/{id}',               [MealPlanController::class, 'show']);
+        Route::post('/update/{id}',            [MealPlanController::class, 'update']);   // if you’ll use it
+        Route::post('/delete/{id}',            [MealPlanController::class, 'destroy']); 
     });
 
     // MEAL PLAN ITEMS
-    Route::post('meal-plan-items/update/{id}', [MealPlanItemController::class, 'update']);
+    Route::prefix('meal-plan-items')->group(function () {
+        Route::get('/{meal_plan_id}',          [MealPlanItemController::class, 'index']);
+        Route::post('/create',                 [MealPlanItemController::class, 'store']);
+        Route::get('/show/{id}',               [MealPlanItemController::class, 'show']);
+        Route::post('/update/{id}',            [MealPlanItemController::class, 'update']);
+        Route::post('/delete/{id}',            [MealPlanItemController::class, 'destroy']);
+    });
 
 
     // SHOPPING LISTS
@@ -89,6 +98,10 @@ Route::middleware(['auth:api'])->group(function () {
         Route::get('/{household_id}',          [ShoppingListController::class, 'index']);
         Route::post('/create',                 [ShoppingListController::class, 'store']);
         Route::get('/show/{id}',               [ShoppingListController::class, 'show']);
+        Route::post('/update/{id}',               [ShoppingListController::class, 'update']);   
+        Route::post('/checkout-bought/{id}',               [ShoppingListController::class, 'checkoutBought']);   
+    
+        Route::post('/from-meal-plan', [ShoppingListController::class,'autoFromMealPlan']);
     });
 
     // SHOPPING LIST ITEMS
