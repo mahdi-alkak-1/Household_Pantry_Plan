@@ -70,9 +70,7 @@ class MealPlanController extends Controller
             return self::responseJSON(null, "Meal plan not found", 404);
         }
 
-        // ------------------------------------------------------
-        // AUTO-CREATE 7 × 3 SLOTS FOR THIS WEEK IF MISSING
-        // ------------------------------------------------------
+        //create slots for this week
         $start = Carbon::parse($mealPlan->week_start_date)->startOfDay();
         $slots = ['breakfast', 'lunch', 'dinner'];
 
