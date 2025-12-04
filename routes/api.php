@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AI\AIController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Expenses\ExpenseController;
@@ -120,4 +121,6 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/update/{id}',            [ExpenseController::class, 'update']);
         Route::post('/delete/{id}',            [ExpenseController::class, 'destroy']);
     });
+
+    Route::post('/ai/assistant', [AIController::class, 'householdAssistant']);
 });

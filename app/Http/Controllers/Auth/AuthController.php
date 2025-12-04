@@ -8,15 +8,14 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
 class AuthController extends Controller{
-    //https://blog.logrocket.com/implementing-jwt-authentication-laravel-11/
+
 
     public function displayError(){
         return $this->responseJSON(null, "Unauthorized", 401);
     }
 
     public function login(Request $request){
-        //Validation (Monday) 
-        //https://medium.com/@prevailexcellent/laravel-form-request-validation-a-complete-guide-on-data-handling-1f181a74123f
+
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',

@@ -110,14 +110,7 @@ class ShoppingListController extends Controller
         return self::responseJSON(null, "Failed to delete shopping list", 500);
     }
 
-    /**
-     * Auto-generate / update a shopping list based on the latest MealPlan
-     * for the given household.
-     *
-     * Request JSON:
-     *  - household_id     (required)
-     *  - shopping_list_id (optional, if not given we create a new list)
-     */
+    
     public function autoFromMealPlan(Request $request)
     {
         $request->validate([
@@ -222,7 +215,7 @@ class ShoppingListController extends Controller
             $list->save();
         }
 
-        // 6) Insert / UPDATE items (idempotent: sets quantity to needed, doesn't keep adding)
+        // Insert / UPDATE items
         $affected = [];
 
         foreach ($deficits as $row) {
@@ -323,7 +316,7 @@ class ShoppingListController extends Controller
             $qty  = $item->quantity ?? 1;
             $unit = $item->unit;
 
-            // ✅ ALWAYS CREATE A NEW PANTRY ROW
+            // ALWAYS CREATE A NEW PANTRY ROW
             // so different shopping trips / expiry dates don't get merged
             PantryItem::create([
                 'household_id'  => $household_id,
